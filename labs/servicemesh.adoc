@@ -5,22 +5,22 @@ Author: Mark Roberts (feedback to mroberts@redhat.com)
 
 === Introduction
 
-OpenShift is a platform that enables developers to deliver and manage extremely complex polyglot applications covering a variety of language runtimes and underlying technologies. However, OpenShift to date has not provided controls and monitoring regarding how each application component interacts with other components within an application or wider enterprise. This is where the Red Hat OpenShift Service Mesh adds value to the development and operations staff responsible for applications. 
+OpenShift is a platform that enables developers to deliver and manage extremely complex polyglot applications covering a variety of language runtimes and underlying technologies. However, OpenShift to date has not provided controls and monitoring regarding how each application component interacts with other components within an application or wider enterprise. This is where the Red Hat OpenShift Service Mesh adds value to the development and operations staff responsible for applications.
 
-Red Hat OpenShift Service mesh comprises a number of separate open source projects that have been tested and integrated as a whole to deliver value to the OpenShift user. Each open source project breaks down further to specific named elements, some of which are encountered and described in the following workshop chapter. 
+Red Hat OpenShift Service mesh comprises a number of separate open source projects that have been tested and integrated as a whole to deliver value to the OpenShift user. Each open source project breaks down further to specific named elements, some of which are encountered and described in the following workshop chapter.
 
 ==== Istio
 
-Istio is an implementation of the service-mesh and this component is responsible for the overall management of communication traffic between the elements of the application. The service mesh provides the manageable and measurable interaction between different services and enables teams to introduce new functionality and services in a controlled manner. One of the major benefits of the service-mesh is the fact that functionality such as Load balancing, resilience, security and observation is delivered by the mesh and not by the application. Application developers can focus in the value of their application and not how to add the resilience etc. to the application. In the earlier chapter on 'Application deployment strategies' users created a mechanism for blue/green deployments and A/B deployments to spread the load across different versions of services. These capabilities are extended further with Istio in terms of the basis for the rules that are used for traffic management. For a more detailed introduction to Istio please take a look at the free O'Reilly book 'Introducing Istio Service Mesh for Microservices' which can be downloaded from https://developers.redhat.com/books/introducing-istio-service-mesh-microservices/[here, window="_blank"]. 
+Istio is an implementation of the service-mesh and this component is responsible for the overall management of communication traffic between the elements of the application. The service mesh provides the manageable and measurable interaction between different services and enables teams to introduce new functionality and services in a controlled manner. One of the major benefits of the service-mesh is the fact that functionality such as Load balancing, resilience, security and observation is delivered by the mesh and not by the application. Application developers can focus in the value of their application and not how to add the resilience etc. to the application. In the earlier chapter on 'Application deployment strategies' users created a mechanism for blue/green deployments and A/B deployments to spread the load across different versions of services. These capabilities are extended further with Istio in terms of the basis for the rules that are used for traffic management. For a more detailed introduction to Istio please take a look at the free O'Reilly book 'Introducing Istio Service Mesh for Microservices' which can be downloaded from https://developers.redhat.com/books/introducing-istio-service-mesh-microservices/[here, window="_blank"].
 
-==== Kiali 
+==== Kiali
 
 Kiali adds the observability capability to the Red Hat Service Mesh. This enables users to build a picture of service interaction, observe traffic and look in detail at the resources that are added to the OpenShift platform to create the operational service mesh. Kiali is used to understand the structure of the mesh and to gather metrics. A link is available from Kiali to Jaeger for distributed tracing.
 
 ==== Jaeger
 
 Jaeger provides a detailed distributed traffic tracing capability. This shows accurately the message interaction and enables teams to understand in detail the sequencing of traffic flow and to identify bottlenecks and weaknesses within the mesh.
- 
+
 === Using Red Hat Service Mesh
 
 The following workshop steps will show you how to create a service mesh using a simple application. The application communication will work perfectly fine with the use of OpenShift services and routes, and the introduction of the service mesh to provide more capable communication management will have no implications on the application code.
@@ -34,7 +34,7 @@ The application is called layers and it is a very simple Node JS REST interface 
 oc new-project service-mesh-{{USER_ID}}
 ----
 
-Not all projects are required to be managed by service mesh. As a result you need to add the project that you just created to the service mesh control plane so that the sidecar containers will be injected into the pods to deliver the Istio functionality. We will be using some preloaded assets in the Terminal window, so enter the following command to set the context: 
+Not all projects are required to be managed by service mesh. As a result you need to add the project that you just created to the service mesh control plane so that the sidecar containers will be injected into the pods to deliver the Istio functionality. We will be using some preloaded assets in the Terminal window, so enter the following command to set the context:
 
 [source]
 ----
@@ -50,7 +50,7 @@ oc create -f servicemeshmember.yaml
 
 === Phase 1 - Initial application
 
-The micro-service based application that you are about to create is very simple and uses a rest interface that can be asked to call another downstream version of itself. This can continue for as many application instances as needed to illustrate the features of the service mesh. 
+The micro-service based application that you are about to create is very simple and uses a rest interface that can be asked to call another downstream version of itself. This can continue for as many application instances as needed to illustrate the features of the service mesh.
 
 To create the first application instance do the following :
 
@@ -64,43 +64,9 @@ Switch to the web user interface and select the developer view for your service 
 
 image::service-mesh-01.png[Pod with application container and sidecar container]
 
-Expose the service using a route by executing the following command :
-
-[source]
-----
-oc expose service/layer1
-----
-
-At this point the application has all of the components required for network communication without the use of Istio. The resources required that exist can be viewed with the command :
-
-[source]
----- 
-oc get all
-----
-
-This will list the following resources :
-
-* deployment
-* pod
-* replicaset
-* service
-* route
-
-The route, service and pod are shown in the diagram below to indicate the network communication to the application.
-
-image::service-mesh-02.png[Route, service and application]
-
-Communication to the application will work as expected using the above resources. This can be tested by pasting the following command into the terminal window to make 100 calls to the application, approximately ever 0.2 seconds. 
-
-[source]
-----
-export ROUTE=$(oc get route -o jsonpath='{.items[0].spec.host}{"/call-layers"}')
-for i in {1..100}; do curl $ROUTE; echo ""; sleep .2;done
-----
-
 ==== Adding Istio capability
 
-To enable the service mesh communication requires further resources to be created. The initial resources to be created are the gateway and the virtual service. The gateway resource identifies a host for which communication should be intercepted and directed to the istio-ingress gateway. The virtual service acts as a communication director selecting traffic that matches specific criteria for routing to a destination service. The gateway and virtual service yaml content is shown in the diagram below which also shows schematically how the communication is directed.
+To enable the service mesh communication requires further resources to be created. The initial resources to be created are the gateway and the virtual service. The gateway provides more extensive capabilities for traffic management compared to the Kubernetes ingress resource. The gateway provides more extensive capabilities for traffic management compared to the Kubernetes ingress resource. The virtual service acts as a communication director selecting traffic that matches specific criteria for routing to a destination service. The gateway and virtual service yaml content is shown in the diagram below which also shows schematically how the communication is directed. 
 
 image::service-mesh-03.png[Istio gateway and virtual service]
 
@@ -108,8 +74,8 @@ Create the gateway and the virtual service with the commands below:
 
 [source]
 ----
-oc create -f gateway-layer1.yaml
-oc create -f virtual-service-layer1.yaml
+oc create --save-config -f gateway-layer1.yaml
+oc create --save-config -f virtual-service-layer1.yaml
 ----
 
 ==== View the istio related resources
@@ -125,11 +91,21 @@ The above command will list the gateway and the virtual service. The virtual ser
 
 [source]
 ----
-NAME                                        GATEWAYS           HOSTS                                                        AGE
-virtualservice.networking.istio.io/layers   [layer1-gateway]   [layer1-layers.apps.cluster-c2d5.c2d5.example.opentlc.com]   54s
+NAME                                        GATEWAYS           HOSTS   AGE
+virtualservice.networking.istio.io/layers   [layer1-gateway]   ["*"]   54s
 
 NAME                                         AGE
 gateway.networking.istio.io/layer1-gateway   63s
+----
+
+==== Identifying the Istio Ingress route
+
+Communication to the application using the above resources can now be tested. Pasting the following command into the terminal window to make 100 calls to the application, approximately ever 0.2 seconds.
+
+[source]
+----
+export GATEWAY=$(oc -n istio-system get route istio-ingressgateway -o jsonpath='{.spec.host}{"/call-layers"}')
+for i in {1..100}; do curl $GATEWAY; echo ""; sleep .2;done
 ----
 
 === Service mesh visualisation with Kiali
@@ -156,10 +132,10 @@ Press the display drop down menu at the top of the screen and select the traffic
 
 [source]
 ----
-for i in {1..100}; do curl $ROUTE; echo ""; sleep .2;done
+for i in {1..100}; do curl $GATEWAY; echo ""; sleep .2;done
 ----
 
-Switch back to the Kiali window and watch the animation of the traffic flow in the graph. It will take a few seconds for the animation to start, but eventually you will see a screen similar to that which is shown below. 
+Switch back to the Kiali window and watch the animation of the traffic flow in the graph. It will take a few seconds for the animation to start, but eventually you will see a screen similar to that which is shown below.
 
 image::service-mesh-05.png[Kiali traffic animation]
 
@@ -179,7 +155,7 @@ image::service-mesh-06.png[Virtual service with error]
 
 === Phase 2 - Further content in the communication chain
 
-The next phase of building the service mesh is to introduce another application and service. 
+The next phase of building the service mesh is to introduce another application and service.
 
 Change directory to phase 2 and create the new application for layer 2 with the following commands:
 
@@ -207,7 +183,7 @@ oc apply -f layer1.yaml
 
 Switch to the OpenShift browser window and ensure that you are using the developer mode on the top left corner, you have the service-mesh-{{USER_ID}} project selected and you are viewing the Topology view. You should see the 'layers' application grouping with layer1-v1 and layer2 (with versions v1 and v2) grouped together within the application group. Click on layer1-v1 and you will see on the fly-out window on the right hand side that it has one pod. This pod contains the running application container and the istio sidecar container too. If you select one of the layer 2 applications you will see that it has 2 replica pods as directed by the layer2.yaml deployment file.
 
-In the OpenShift terminal window restart the for loop to start sending http requests to layer1. You should now see that layer1 is sending requests on to layer 2 and you should see the IP address of the nodes on which those two layers are running as shown below. This also shows the distribution of traffic to the different versions of layer2. 
+In the OpenShift terminal window restart the for loop to start sending http requests to layer1. You should now see that layer1 is sending requests on to layer 2 and you should see the IP address of the nodes on which those two layers are running as shown below. This also shows the distribution of traffic to the different versions of layer2.
 
 [source]
 ----
@@ -230,9 +206,9 @@ image::service-mesh-07.png[Kiali distribution of traffic to layer 2]
 
 === Phase 3 - Further multi-versioned applications in the communication chain
 
-The next phase of building the service mesh is to introduce another multi-versioned application and service. 
+The next phase of building the service mesh is to introduce another multi-versioned application and service.
 
-Change directory to phase 3 and create the new application for layer 3 with the following commands:
+Change directory to phase 3 and create the new applfor i in {1..100}; do curl $GATEWAY:900; echo ""; sleep .2;doneication for layer 3 with the following commands:
 
 [source]
 ----
@@ -240,15 +216,15 @@ cd ../phase3
 oc create -f layer3.yaml
 ----
 
-You will see that four deployments are created for the four different versions of layer3. 
+You will see that four deployments are created for the four different versions of layer3.
 
 Switch to the OpenShift browser window and ensure that you are using the developer mode on the top left corner, you have the service-mesh-{{USER_ID}} project selected and you are viewing the Topology view. You should see the 'layers' application grouping now has seven micro-services within it. This is shown below:
 
 image::service-mesh-08.png[OpenShift topology view of micro-services]
 
-Under more common circumstances of a development project the names will often be cryptic and it will be hard to gain any understanding of the communication logic, sequence or hierarchy of an overall application. This is when the Kiali visualization view becomes extremely useful. 
+Under more common circumstances of a development project the names will often be cryptic and it will be hard to gain any understanding of the communication logic, sequence or hierarchy of an overall application. This is when the Kiali visualization view becomes extremely useful.
 
-To tie the service mesh together for the different versions of layer3 a virtual service and a destination rule will be used. 
+To tie the service mesh together for the different versions of layer3 a virtual service and a destination rule will be used.
 
 .Virtual Services and Destination Rules
 ****
@@ -267,7 +243,7 @@ spec:
     - uri:
         exact: /call-layers
     - uri:
-        exact: /get-info        
+        exact: /get-info
     - uri:
         exact: /
   - route:
@@ -285,7 +261,7 @@ spec:
       weight: 20
 ----
 
-The above will direct http traffic with the uri path of /call-layers, /get-info or / sent to application layer3 (spec: -> hosts: -> layer3) to the destinations subset v1 (50% of traffic), subset v2 (30% of traffic) and subset v3 (20% of traffic). At the present time no traffic is directed to subset v4. 
+The above will direct http traffic with the uri path of /call-layers, /get-info or / sent to application layer3 (spec: -> hosts: -> layer3) to the destinations subset v1 (50% of traffic), subset v2 (30% of traffic) and subset v3 (20% of traffic). At the present time no traffic is directed to subset v4.
 
 The destination rule associated with the above virtual service is shown below which ties the subsets shown in the virtual service to the specific versions of the applications :
 
@@ -336,7 +312,7 @@ layer3-v4-858765c8c9-m5lzf  v4
 
 The above shows that there is 1 version for layer1, 2 versions for layer 2 that are replicated pods (two instances) and 4 versions for layer 3.
 
-Destination rules require a virtual services and there cannot be more destinations than virtual services. For this reason when a destination rule is used the virtual service is either created at the same time or the virtual service already exists. 
+Destination rules require a virtual services and there cannot be more destinations than virtual services. For this reason when a destination rule is used the virtual service is either created at the same time or the virtual service already exists.
 
 [source]
 ----
@@ -388,7 +364,7 @@ In the OpenShift terminal window recall the for loop that sends messages to the 
 "layer1 (v1) [10.130.2.240] ----> layer2 (v1) [10.128.2.151] ----> layer3-v3 (v3) [10.128.2.144]"
 ----
 
-Of the above 25 calls, 10 are for v1 (40%), 8 are for v2 (32%) and 7 are for v3 (28%). When more calls are made the distribution gets closer to the desired values. 
+Of the above 25 calls, 10 are for v1 (40%), 8 are for v2 (32%) and 7 are for v3 (28%). When more calls are made the distribution gets closer to the desired values.
 
 Switch to the Kiali browser view and wait until the traffic starts to appear. On the second to left drop down option menu at the top of the Kiali screen select the option "Requests percentage". This will show the breakdown of traffic similar to that which is shown below:
 
@@ -396,7 +372,7 @@ image::service-mesh-09.png[OpenShift topology view of micro-services]
 
 === Phase 4 - Service timeout
 
-The service mesh has a capability to manage traffic flow in a number of different ways. This includes a circuit breaker function to remove applications from participation in communication and a timeout function to control the abandonment of communication with a service, to name just two. In this phase a timeout will be introduced to control the traffic flow such that version A of the application layer will force a timeout after 1.5 second and version B will force a timeout after 1 seconds. 
+The service mesh has a capability to manage traffic flow in a number of different ways. This includes a circuit breaker function to remove applications from participation in communication and a timeout function to control the abandonment of communication with a service, to name just two. In this phase a timeout will be introduced to control the traffic flow such that version A of the application layer will force a timeout after 1.5 second and version B will force a timeout after 1 seconds.
 
 Change directory to phase 3 and create the new applications for layers 2A and 2B with the following commands:
 
@@ -437,7 +413,7 @@ spec:
     - uri:
         prefix: /call-layers
     - uri:
-        exact: /get-info        
+        exact: /get-info
     - uri:
         exact: /
     route:
@@ -456,9 +432,9 @@ spec:
     timeout: 1.500s
 ----
 
-The virtual service shows a traffic distribution of 80 % to inst-1 and 20% to inst-2. The final statement shows the timeout that applies to the entire route of 1.5 seconds. 
+The virtual service shows a traffic distribution of 80 % to inst-1 and 20% to inst-2. The final statement shows the timeout that applies to the entire route of 1.5 seconds.
 
-A similar configuration applies to the virtual service and destination rules for application 2-B with a distribution of 30% to 70% and a timeout of 1 second. 
+A similar configuration applies to the virtual service and destination rules for application 2-B with a distribution of 30% to 70% and a timeout of 1 second.
 
 Create the virtual services and destination rules with the commands :
 
@@ -468,11 +444,12 @@ oc create -f destination-rule-virtual-service-layer2-A.yaml --save-config
 oc create -f destination-rule-virtual-service-layer2-B.yaml --save-config
 ----
 
-Modify layer 1 application so that it sends traffic to applications 2A and 2B.
+Modify layer 1 application so that it sends traffic to applications 2A and 2B, and modify the initial virtual service so that it accepts traffic from the /call-layers-sleep url.
 
 [source]
 ----
 oc apply -f layer1.yaml
+oc apply -f destination-rule-virtual-service-layer1.yaml
 ----
 
 In the OpenShift terminal window recall the for loop that sends messages to the applications and execute it again.
@@ -492,18 +469,18 @@ layer1 (v1) [10.128.2.62] ----> layer2-a (instance-2) [10.128.2.60]
 
 ==== Introducing application delay
 
-To show the impact of the timeout function a different rest endpoint is used. Reconfigure the ROUTE environment variable to use the alternative endpoint with the command :
+To show the impact of the timeout function a different rest endpoint is used. Reconfigure the GATEWAY environment variable to use the alternative endpoint with the command :
 
 [source]
 ----
-export ROUTE=$(oc get route -o jsonpath='{.items[0].spec.host}{"/call-layers-sleep"}')
+export GATEWAY=$(oc -n istio-system get route istio-ingressgateway -o jsonpath='{.spec.host}{"/call-layers-sleep"}')
 ----
 
 Call the applications with a delay of 900ms. This should result in no interruption to service. Execute the following shell command to make 100 calls.
 
 [source]
 ----
-for i in {1..100}; do curl $ROUTE:900; echo "";done
+for i in {1..100}; do curl $GATEWAY:900; echo "";done
 ----
 
 This will result in a display similar to that which is shown below. Instances 1 and 2 of layers 2a and 2b are responding.
@@ -524,7 +501,7 @@ Stop the loop command and increase the delay to 1100 ms using the command :
 
 [source]
 ----
-for i in {1..100}; do curl $ROUTE:1100; echo "";done
+for i in {1..100}; do curl $GATEWAY:1100; echo "";done
 ----
 
 This will result in a display similar to that which is shown below. Instances 1 and 2 of layers 2a are responding, while the delayed response from instances 1 and 2 of layer 2b are being timed out.
@@ -545,10 +522,10 @@ Stop the loop command and increase the delay to 1600 ms using the command :
 
 [source]
 ----
-for i in {1..100}; do curl $ROUTE:1600; echo "";done
+for i in {1..100}; do curl $GATEWAY:1600; echo "";done
 ----
 
-This will result in a display similar to that which is shown below in which all calls are being timed out. 
+This will result in a display similar to that which is shown below in which all calls are being timed out.
 
 [source]
 ----
@@ -556,7 +533,7 @@ layer1 (v1) [10.128.2.62] sleep (1100 ms) ----> upstream request timeout
 layer1 (v1) [10.128.2.62] sleep (1100 ms) ----> upstream request timeout
 ----
 
-While the for loop is running make a change to the timeout of one of the virtual services to increase the delay to 2500 ms. This can be done in two different ways. 
+While the for loop is running make a change to the timeout of one of the virtual services to increase the delay to 2500 ms. This can be done in two different ways.
 
 1. Make a change to one the virtual service files using the vi editor and then re-apply the virtual service using the following :
 
@@ -579,7 +556,7 @@ Take a look at the traffic flow in the graph view of Kiali and you should see a 
 
 image::service-mesh-10.png[Traffic distribution with errors]
 
-The above image shows red to indicate the communication that is being rejected by the timeout. 
+The above image shows red to indicate the communication that is being rejected by the timeout.
 
 === Cleaning up
 
@@ -589,12 +566,3 @@ To tidy up the cluster now that the chapter is complete please use the command
 ----
 oc delete project service-mesh-{{USER_ID}}
 ----
-
-
-
-
-
-
-
-
-

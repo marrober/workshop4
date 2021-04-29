@@ -22,7 +22,7 @@ In more detail the diagram below shows how odo and oc / source-2-image work toge
 ****
 
 image::odo-2.png[odo in the development cycle - detail]
- 
+
 === Installing
 
 
@@ -60,16 +60,16 @@ Utility Commands:
 
 Component Shortcuts:
 
-  create      Create a new component 
-  delete      Delete component 
-  describe    Describe component 
-  link        Link component to a service or component 
-  list        List all components in the current application 
-  log         Retrieve the log for the given component 
-  push        Push source code to a component 
-  unlink      Unlink component to a service or component 
-  update      Update the source code path of a component 
-  watch       Watch for changes, update component on change 
+  create      Create a new component
+  delete      Delete component
+  describe    Describe component
+  link        Link component to a service or component
+  list        List all components in the current application
+  log         Retrieve the log for the given component
+  push        Push source code to a component
+  unlink      Unlink component to a service or component
+  update      Update the source code path of a component
+  watch       Watch for changes, update component on change
 
 *The most common are used within this workshop but feel free to experiment with any of the above commands.*
 
@@ -87,7 +87,7 @@ This should result in your user name being displayed followed by the sandbox-{{U
 
 [source]
 ----
-oc new-project sandbox-{{USER_ID}} 
+oc new-project sandbox-{{USER_ID}}
 ----
 
 *If you do need to login to odo outside of this workshop use the 'odo login' command with appropriate parameters*
@@ -120,7 +120,7 @@ Create a new project using the odo command:
 
 [source]
 ----
-odo create nodejs node-app-rest-{{USER_ID}} --port 8080
+odo create nodejs node-app-rest-{{USER_ID}} --port 8080 --s2i
 ----
 
 TIP:The syntax of the above command is 'odo create <component-type> <component-name> --project <project-for-the-component>'
@@ -136,7 +136,7 @@ Create a route for the application by using the command below
 
 [source]
 ----
-odo url create node-app-rest
+odo url create node-app-rest --port 8080
 ----
 
 Examine the contents of the .odo/config.yaml file again and you will see that new content has been added
@@ -190,7 +190,7 @@ The code still needed to be pushed to the component, but the final stage of buil
 
 === odo watch
 
-The odo process also has a 'watch' facility that allows you to force odo to constantly watch for source code changes and push them immediately. Open another instance of the terminal application by pointing a new tab in the browser to the route to the terminal application. 
+The odo process also has a 'watch' facility that allows you to force odo to constantly watch for source code changes and push them immediately. Open another instance of the terminal application by pointing a new tab in the browser to the route to the terminal application.
 
 In the new terminal tab enter
 
@@ -227,10 +227,3 @@ odo delete node-app-rest-{{USER_ID}}
 ----
 
 This will delete the application from the project.
-
-
-
-
-
-
-

@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - env:
-        image: quay.io/marrober/layers:latest
+        image: quay.io/marrober/layers:10
         imagePullPolicy: Always
         name: layer3
         ports:
@@ -61,7 +61,7 @@ spec:
     spec:
       containers:
       - env:
-        image: quay.io/marrober/layers:latest
+        image: quay.io/marrober/layers:10
         imagePullPolicy: Always
         name: layer3
         ports:
@@ -99,7 +99,7 @@ spec:
     spec:
       containers:
       - env:
-        image: quay.io/marrober/layers:latest
+        image: quay.io/marrober/layers:10
         imagePullPolicy: Always
         name: layer3
         ports:
@@ -137,7 +137,7 @@ spec:
     spec:
       containers:
       - env:
-        image: quay.io/marrober/layers:latest
+        image: quay.io/marrober/layers:10
         imagePullPolicy: Always
         name: layer3
         ports:
